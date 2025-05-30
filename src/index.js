@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import studentRoute from "./routes/studentRoute.js";
 import { API_BASE_URL, studentsAPI_URL } from "./utils/const.js";
+import { logger } from "./middlewares/logger.js";
 
 // Initializations
 dotenv.config();
@@ -10,13 +11,6 @@ const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(express.json());
-
-// Logger
-const logger = (req, res, next) => {
-  console.log(`[${req.method}] [${req.url}] • ${new Date()} `);
-  next();
-};
-
 app.use(logger);
 app.use(studentsAPI_URL, studentRoute);
 

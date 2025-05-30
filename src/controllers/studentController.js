@@ -1,11 +1,17 @@
-import { dbConnection } from "../config/dbConfig";
+import { dbConnection } from "../config/dbConfig.js";
 // import { nanoid } from "nanoid";
 
 // Connect PostgreSQL database
 dbConnection
   .connect()
-  .then(() => console.log("⛁ Connected to db.."))
+  .then(() => console.log(`⛁ ${" "}Connected to db..`))
   .catch((err) => console.log(err));
+
+export const getTest = (req, res) => {
+  console.log("Test endpoint hit!");
+  res.setHeader("Content-Type", "application/json");
+  res.status(200).json({ message: "Test endpoint is working!" });
+};
 
 // ====================================
 export const getStudents = (req, res) => {
