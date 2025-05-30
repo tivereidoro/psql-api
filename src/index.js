@@ -1,43 +1,38 @@
 import dotenv from "dotenv";
 import express from "express";
+import studentRoute from "./routes/studentRoute.js";
+import { API_BASE_URL, studentsAPI_URL } from "./utils/const.js";
 
 // Initializations
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
-const router = express.Router();
 
 // Middleware
 app.use(express.json());
 
 // Logger
 const logger = (req, res, next) => {
-  console.log(`${new Date()} --- Request [${req.method}] [${req.url}]`);
+  console.log(`[${req.method}] [${req.url}] • ${new Date()} `);
   next();
 };
 
 app.use(logger);
+app.use(studentsAPI_URL, studentRoute);
 
 // ======
 // Routes
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.get("/api", (req, res) => {
+app.get(API_BASE_URL, (req, res) => {
   res.json({ message: "API is working!" });
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
-});
+// app.use(errorMiddleware);
 
-// Start the server
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on: http://localhost:${PORT}`);
 });
 
-// Export  app for testing
+// Export for testing
 export default app;
