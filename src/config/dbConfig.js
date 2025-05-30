@@ -1,9 +1,9 @@
-// Database connection configuration
-// for PostgreSQL database.
-import { Client } from "pg";
+// db connection config
+// for postgres database
 import dotenv from "dotenv";
+import { Client } from "pg";
 
-// Init
+// Inits
 dotenv.config();
 
 export const dbConnection = new Client({
