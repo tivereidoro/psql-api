@@ -1,17 +1,11 @@
 import { dbConnection } from "../config/dbConfig.js";
-// import { nanoid } from "nanoid";
+import { nanoid } from "nanoid";
 
 // Connect PostgreSQL database
 dbConnection
   .connect()
   .then(() => console.log(`⛁ ${" "}Connected to db..`))
   .catch((err) => console.log(err));
-
-export const getTest = (req, res) => {
-  console.log("Test endpoint hit!");
-  res.setHeader("Content-Type", "application/json");
-  res.status(200).json({ message: "Test endpoint is working!" });
-};
 
 // ====================================
 export const getStudents = (req, res) => {
@@ -26,6 +20,28 @@ export const getStudents = (req, res) => {
     } else {
       console.log("Data fetched!!", result.rows);
       res.status(200).json(result.rows);
+    }
+  });
+};
+
+// GET student by ID
+export const getStudentById = (req, res) => {
+  const { id } = req.params;
+  console.log(`Fetching student with ID: ${id}\n`);
+  res.setHeader("Content-Type", "application/json");
+  const selectQuery = "SELECT * FROM my_students WHERE student_id = $1";
+  dbConnection.query(selectQuery, [id], (err, result) => {
+    if (err) {
+      console.error("Error fetching data:", err);
+      res.status(500).send("Error fetching data");
+    } else {
+      const student = result.rows[0];
+      if (!student) {
+        console.log(`Student with ID: ${id} not found`);
+        return res.status(404).send("Student not found");
+      }
+      console.log("Data fetched!!", student);
+      res.status(200).json(student);
     }
   });
 };
@@ -49,28 +65,34 @@ export const getStudents = (req, res) => {
 //   });
 // };
 
-// export const postToDB = (req, res) => {
-//   const { courseName, duration, instructors } = req.body;
-//   const courseId = nanoid(10);
+export const createStudent = (req, res) => {
+  const { firstName, lastName, email } = req.body;
+  // Generate unique student ID
+  const studentId = nanoid(10);
 
-//   // const insertQuery = `INSERT INTO courses (id, course_name, duration, instructors) VALUES ('${courseId}', '${courseName}', '${duration}', '${instructors}')`;
+  // Validate the input data
+  if (!firstName || !lastName || !email) {
+    return res.status(400).send("All fields are required");
+  }
 
-//   const insertQuery = `INSERT INTO courses (id, course_name, duration, instructors) VALUES ($1, $2, $3, $4)`;
+  // const insertQuery = `INSERT INTO courses (id, course_name, duration, instructors) VALUES ('${courseId}', '${courseName}', '${duration}', '${instructors}')`;
 
-//   dbConnection.query(
-//     insertQuery,
-//     [courseId, courseName, duration, instructors],
-//     (err, result) => {
-//       if (err) {
-//         console.error("Error inserting data:", err);
-//         res.status(500).send("Error inserting data");
-//       } else {
-//         console.log("Data inserted!!", result);
-//         res.status(200).send("Data inserted successfully");
-//       }
-//     }
-//   );
-// };
+  const insertQuery = `INSERT INTO my_students (student_id, firstname, lastname, email, password) VALUES ($1, $2, $3, $4)`;
+
+  dbConnection.query(
+    insertQuery,
+    [studentId, firstName, lastName, email],
+    (err, result) => {
+      if (err) {
+        console.error("Error inserting data:", err);
+        res.status(500).send("Error inserting data");
+      } else {
+        console.log("Data inserted!!", result);
+        res.status(200).send("Data inserted successfully");
+      }
+    }
+  );
+};
 
 // export const createUser = (req, res) => {
 //   const user = req.body;
