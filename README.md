@@ -1,38 +1,26 @@
-# Mini Project Assessment - Create a simple REST API with Express.js
+# Mini Project - Store and retrieve data in PostgreSQL with CRUD ops of an Express.js API/server
 
 ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&labelColor=black&logo=node.js&logoColor=white) &nbsp;
-![ExpressJS Badge](https://img.shields.io/badge/-Express.JS-404D59?style=flat&labelColor=black&logo=express&logoColor=FF781F)
+![ExpressJS Badge](https://img.shields.io/badge/Express.js-404D59?style=flat&labelColor=black&logo=express&logoColor=FF781F) &nbsp;
+![ExpressJS Badge](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white)
 
-A lightweight REST API for user management. Implements full CRUD operations with in-memory storage and appropriate error handling. Built with **Node.js**, **Express.js**, and proper **RESTful principles**.
+A simple REST API for students data management, which implements full CRUD operations on a Postgres database. Built with **Node.js**, **Express.js**, **PostgreSQL** and proper **RESTful API principles**.
 
 <br>
-
-## Table of Contents
-
-- [Objective](#🎯-objective)
-- [Project Tasks](#📌-project-tasks)
-- [Features](#🏷️-features)
-- [Setup and installation](#🚀-setup-instructions)
-- [API Documentation](#📝-api-documentation)
-  - [Endpoints](#endpoints)
-  - [Examples](#example-requests)
-- [Testing](#⚙️-testing-the-api)
-- [Project Structure](#📂-project-structure)
-- [License](#📜-license)
-
-##
 
 ##
 
 ## 🎯 Objective:
 
-The goal of this assessment is to create a simple REST API using Express.js, demonstrating my understanding of Node.js, Express.js, and RESTful API principles.
+The goal of this assessment is to create a simple Express.js API that connects to a PostgreSQL database and performs basic CRUD operations on the database.
 
 ## 📌 Project Tasks:
 
-- Set up the API with Express.js.
+- Set up RESTful API with Express.js.
+- Install dependencies (pg and express).
+- Set up a PostgreSQL database with a table.
+- Connect to database using 'pg' module.
 - Create routes to implement CRUD operations including; GET, POST, PUT, DELETE items by ID.
-- Data management: in-memory data store and proper validation for incoming data.
 - Handle appropriate error responses and validate request params and body data.
 - Test API endpoints with Postman.
 
@@ -42,14 +30,14 @@ The goal of this assessment is to create a simple REST API using Express.js, dem
 - ✅ Data validation
 - ✅ Error handling
 - ✅ RESTful design
-- ✅ In-memory storage
+- ✅ PostgreSQL db storage
 - ✅ JSON request/response
 
 ## 🚀 Setup Instructions
 
 ### Prerequisites
 
-- Node.js v14+
+- Node.js v18+
 - npm or yarn
 
 ### Installation
@@ -57,9 +45,9 @@ The goal of this assessment is to create a simple REST API using Express.js, dem
 1. Clone repository:
 
    ```bash
-   git clone https://github.com/tivereidoro/module_3.git
+   git clone https://github.com/tivereidoro/psql-api.git
 
-   cd module_3
+   cd psql-api
    ```
 
 2. Install dependencies:
@@ -68,12 +56,27 @@ The goal of this assessment is to create a simple REST API using Express.js, dem
    npm install
    ```
 
-3. Start development server:
+3. Create and update your .env file:
+
+   ```bash
+   PORT=your_app_port
+
+   PG_DB_HOST=database_host
+   PG_DB_USER=database_user
+   PG_DB_PASSWD=database_password
+   PG_DB_PORT=db_connection_port
+   PG_DB_NAME=database_name
+
+   ```
+
+4. Start server:
    ```bash
    npm start
    ```
 
-Server runs on `http://localhost:5000`
+Server runs on `http://localhost:${PORT}`
+
+<br>
 
 ## 📝 API Documentation:
 
@@ -81,172 +84,157 @@ Server runs on `http://localhost:5000`
 
 `http://localhost:5000`
 
-### Root URL route ("/"):
+### Root URL route ('/api/v1'):
 
-Returns - `Hello, World!`
+Returns :
+
+```bash
+   {
+      message: "API is working!"
+   }
+```
 
 ### Endpoints:
 
-| Method | Endpoint       | Description                |
-| :----- | :------------- | :------------------------- |
-| GET    | /api/users     | Retrieve all users         |
-| GET    | /api/users/:id | Retrieve single user by id |
-| POST   | /api/users     | Create new user            |
-| PUT    | /api/users/:id | Update user by id          |
-| DELETE | /api/users/:id | Delete user by id          |
+| Method | Endpoint             | Description                   |
+| :----- | :------------------- | :---------------------------- |
+| GET    | /api/v1/students     | Retrieve all students         |
+| GET    | /api/v1/students/:id | Retrieve single student by id |
+| POST   | /api/v1/students     | Create new student            |
+| PUT    | /api/v1/students/:id | Update student by id          |
+| DELETE | /api/v1/students/:id | Delete student by id          |
 
-### Example Requests:
+<br>
 
-**1. Create User: &nbsp; ( POST &nbsp; `/api/users`)**
+## ⚙️ Testing the API with Example Requests:
+
+**1. Create Student: &nbsp; ( POST &nbsp; `/api/v1/students`)**
 
 Request body:
 
-```
+```bash
    {
       "firstname": "Jane",
       "lastname": "Smith",
       "email": "jane@email.com",
-      "age": 24,
-      "description": "Graphic Designer"
    }
 ```
 
 An ID will be automatically generated for each user on the server.
 
-![POST Postman test](./snapshots/post.png)
+![POST Postman test](./public/images/post.png)
 
 **Expected response: (200 OK):**
 
-`Success! User 'Jane' added!`
+`Data inserted successfully.`
 
 <br>
 
-**2. Get All Users: &nbsp; ( GET &nbsp; `/api/users`)**
+**2. Get All Students: &nbsp; ( GET &nbsp; `/api/v1/students`)**
 
 Request URL:
 
 ```
-   http://localhost:5000/api/users
+   http://localhost:5000/api/v1/students
 ```
 
-![GET Postman test](./snapshots/get.png)
+![GET Postman test](./public/images/getAll.png)
 
 **Expected response: (200 OK)**
 
 ```
 [
    {
-      id: "scx54-e348",
-      firstname: "Jane",
-      lastname: "Smith",
-      email: "jane@email.com",
-      age: 24,
-      description: "Graphic Designer"
-   },
+      "student_id": "NE-CZyhmpf",
+      "firstname": "Jane",
+      "lastname": "Smith",
+      "email": "jane@email.com"
+   }
 ]
 ```
 
 <br>
 
-**3. Get a user by ID: &nbsp; ( GET &nbsp; `/api/users/:id`)**
+**3. Get a student by ID: &nbsp; ( GET &nbsp; `/api/v1/students/:id`)**
 
 Request URL:
 
 ```
-   http://localhost:5000/api/users/scx54-e348
+   http://localhost:5000/api/v1/students/NE-CZyhmpf
 ```
+
+![GET Postman test](./public/images/getId.png)
 
 **Expected response: (200 OK)**
 
 ```
    {
-      id: "scx54-e348",
-      firstname: "Jane",
-      lastname: "Smith",
-      email: "jane@email.com",
-      age: 24,
-      description: "Graphic Designer"
+      "student_id": "NE-CZyhmpf",
+      "firstname": "Jane",
+      "lastname": "Smith",
+      "email": "jane@email.com"
    }
 ```
 
 <br>
 
-**4. Modify user data by ID: &nbsp; ( PUT &nbsp; `/api/users/:id`)**
+**4. Modify student data by ID: &nbsp; ( PUT &nbsp; `/api/v1/students/:id`)**
 
 Request URL:
 
 ```
-   http://localhost:5000/api/users/scx54-e348
+   http://localhost:5000/api/v1/students/NE-CZyhmpf
 ```
 
 Request body:
 
 ```
    {
-      "age": 25,
-      "description": "UI/UX Designer"
+      "firstname": "John",
+      "lastname": "Smith",
+      "email": "john@email.com"
    }
 ```
 
-![PUT Postman test](./snapshots/put.png)
+![PUT Postman test](./public/images/put.png)
 
 **Expected response: (201 OK)**
 
-`Updated user with ID: 'scx54-e348'`
+`Student with ID: 'NE-CZyhmpf' updated successfully`
 
 <br>
 
-**5. Delete user data by ID: &nbsp; ( DELETE &nbsp; `/api/users/:id`)**
+**5. Delete student data by ID: &nbsp; ( DELETE &nbsp; `/api/v1/students/:id`)**
 
 Request URL:
 
 ```
-   http://localhost:5000/api/users/scx54-e348
+   http://localhost:5000/api/v1/students/NE-CZyhmpf
 ```
 
-![DELETE Postman test](./snapshots/delete.png)
+![DELETE Postman test](./public/images/delete.png)
 
 **Expected response: (201 OK)**
 
-`User with ID: 'scx54-e348' has been deleted!!`
+`Student with ID: 'NE-CZyhmpf' has been deleted!!`
 
 <br>
 
-## ⚙️ Testing the API:
-
-### Test with Postman or cURL:
+### Test with cURL:
 
 Open Postman, select the required request method (GET/POST/PUT/DELETE) and input a json data into the body section where necessary, then click send to get the response.
-
-![POST Postman test](./snapshots/post.png)
 
 **OR**
 
 Use cURL on the CLI to test send request to the endpoint. Here is an example;
 
 ```
-curl -X POST http://localhost:5000/api/users \
+curl -X POST http://localhost:5000/api/v1/students \
 -H "Content-Type: application/json" \
--d '{"firstname":"Jane","lastname":"Smith","email":"jane@email.com", "age":"24", "description":"Graphic Designer"}'
+-d '{"firstName":"Jane","lastName":"Smith","email":"jane@email.com"}'
 ```
 
-![cURL test](./snapshots/curl.png)
-
-## 📂 Project Structure
-
-```
-module_3/
-|
-├── index.js               # Main application file
-├── usersControllers.js    # Contains functions that execute the API logic
-├── usersRoutes.js         # Contains API routes for /api/users endpoint
-├── LICENSE
-├── package.json
-├── .gitignore
-└── README.md
-
-
-```
+<br>
 
 ## 📜 License:
 

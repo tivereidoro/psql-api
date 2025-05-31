@@ -7,7 +7,16 @@ dbConnection
   .then(() => console.log(`⛁ ${" "}Connected to db..`))
   .catch((err) => console.log(err));
 
-// ====================================
+// ==========
+// Student Controller functions
+// Handles CRUD operations for students
+// ==========
+
+/**
+ * Fetch all students data from the database
+ * @param {*} req - The request object containing query parameters.
+ * @param {*} res - The response object for sending response back to client.
+ */
 export const getStudents = (req, res) => {
   console.log("Fetching data from DB");
   res.setHeader("Content-Type", "application/json");
@@ -18,13 +27,24 @@ export const getStudents = (req, res) => {
       console.error("Error fetching data:", err);
       res.status(500).send("Error fetching data");
     } else {
-      console.log("Data fetched!!", result.rows);
+      console.log("Data fetched!!\n", result.rows);
       res.status(200).json(result.rows);
     }
   });
 };
 
 // GET student by ID
+/**
+ * Fetch a student by ID from the database
+ * This function handles GET requests to the "/students/:id" endpoint.
+ * It retrieves a student's data based on the provided ID in the request parameters.
+ * @param {*} req - The request object containing the student ID in the URL parameters.
+ * @param {*} res - The response object used to send the response back to the client.
+ * @returns -- Returns the student data in JSON format if found, or an error message if not found.
+ * @example request - GET /students/:id
+ * Example response: { "student_id": "12345", "firstname": "John", "lastname": "Doe", "email": "john@description.com" }
+ * @example response - 200 OK with student data, or 404 Not Found if the student does not exist.
+ */
 export const getStudentById = (req, res) => {
   const { id } = req.params;
   console.log(`Fetching student with ID: ${id}\n`);
@@ -46,25 +66,14 @@ export const getStudentById = (req, res) => {
   });
 };
 
-// export const getCourseById = (req, res) => {
-//   const { id } = req.params;
-
-//   const selectQuery = "SELECT * FROM courses WHERE id = $1";
-//   dbConnection.query(selectQuery, [id], (err, result) => {
-//     if (err) {
-//       console.error("Error fetching data:", err);
-//       res.status(500).send("Error fetching data");
-//     } else {
-//       const course = result.rows[0];
-//       if (!course) {
-//         return res.status(404).send("Course not found");
-//       }
-//       console.log("Data fetched!!", course);
-//       res.status(200).json(course);
-//     }
-//   });
-// };
-
+/**
+ * Create a new student in the database
+ * This function handles POST requests to the "/students" endpoint.
+ * It inserts a new student's data into the database.
+ * @param {*} req - The request object containing the student's data in the body.
+ * @param {*} res - The response object used to send the response back to the client.
+ * @returns -- Returns a success message if the student is created successfully, or an error message if there is an issue.
+ */
 export const createStudent = (req, res) => {
   const { firstName, lastName, email } = req.body;
   // Generate unique student ID
@@ -76,8 +85,7 @@ export const createStudent = (req, res) => {
   }
 
   // const insertQuery = `INSERT INTO courses (id, course_name, duration, instructors) VALUES ('${courseId}', '${courseName}', '${duration}', '${instructors}')`;
-
-  const insertQuery = `INSERT INTO my_students (student_id, firstname, lastname, email, password) VALUES ($1, $2, $3, $4)`;
+  const insertQuery = `INSERT INTO my_students (student_id, firstname, lastname, email) VALUES ($1, $2, $3, $4)`;
 
   dbConnection.query(
     insertQuery,
@@ -88,76 +96,116 @@ export const createStudent = (req, res) => {
         res.status(500).send("Error inserting data");
       } else {
         console.log("Data inserted!!", result);
-        res.status(200).send("Data inserted successfully");
+        res.status(200).send(`Success! Student with ID: ${studentId} created.`);
       }
     }
   );
 };
 
-// export const createUser = (req, res) => {
-//   const user = req.body;
-//   // Validate the user object
-//   if (!user || !user.name || !user.age) {
-//     return res.status(400).send("Invalid user data");
-//   }
-//   users.push({ id: uuidv4(), ...user });
-//   res.status(201).send(`New user '${user.name}' added!`);
-// };
+/**
+ * Update a student by ID in the database
+ * Handles PUT requests to the "/students/:id" endpoint.
+ * It updates an existing student's data based on the provided ID in the request parameters.
+ * @param {*} req
+ * @param {*} res
+ * @returns -- Returns a success message if the student is updated successfully, or an error message if not found or if there is an issue.
+ */
+export const updateStudentById = (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, email } = req.body;
 
-// export const getUserById = (req, res) => {
-//   const { id } = req.params;
-//   const foundUser = users.find((user) => user.id === id);
+  // Validate the input data
+  if (!firstName || !lastName || !email) {
+    return res.status(400).send("All fields are required");
+  }
 
-//   console.log(`Fetching user with ID: ${id}`);
-//   if (!foundUser) {
-//     return res.status(404).send("User not found");
-//   }
-//   res.send(foundUser);
-// };
+  const updateQuery = `UPDATE my_students SET firstname = $1, lastname = $2, email = $3 WHERE student_id = $4`;
+
+  dbConnection.query(
+    updateQuery,
+    [firstName, lastName, email, id],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating data:", err);
+        res.status(500).send("Error updating data");
+      } else if (result.rowCount === 0) {
+        console.log(`Student with ID: ${id} not found`);
+        res.status(404).send("Student not found");
+      } else {
+        console.log(`Student with ID: ${id} updated successfully`);
+        res.status(200).send(`Student with ID: ${id} updated successfully`);
+      }
+    }
+  );
+};
 
 /**
- * Delete a user by ID
- * from DELETE requests to the "/users/:id" endpoint.
- * @param {*} req - The request object containing the user ID in the URL parameters.
- * @param {*} res - The response object used to send the response back to the client.
- * @returns --
+ * Delete a student by ID from the database
+ * Handles DELETE requests to the "/students/:id" endpoint.
+ * It removes a student's data based on the provided ID in the request parameters.
+ * @param {*} req
+ * @param {*} res
  */
-// export const deleteUserById = (req, res) => {
-//   const { id } = req.params;
+export const deleteStudentById = (req, res) => {
+  const { id } = req.params;
+  console.log(`Deleting student with ID: ${id}\n`);
+  res.setHeader("Content-Type", "application/json");
 
-//   //   Filter out the user with the specified ID from the users array.
-//   //   users = users.filter((user) => user.id !== id);
+  const deleteQuery = "DELETE FROM my_students WHERE student_id = $1";
+  dbConnection.query(deleteQuery, [id], (err, result) => {
+    if (err) {
+      console.error("Error deleting data:", err);
+      res.status(500).send("Error deleting data");
+    } else if (result.rowCount === 0) {
+      console.log(`Student with ID: ${id} not found`);
+      res.status(404).send("Student not found");
+    } else {
+      console.log(`Student with ID: ${id} deleted successfully`);
+      res.status(200).send(`Student with ID: ${id} has been deleted!!`);
+    }
+  });
+};
 
-//   // Find the index of the user with the specified ID in the users array.
-//   // If the user is not found, send a 404 response.
-//   // If the user is found, remove it from the users array and send a success message.
-//   const userIndex = users.findIndex((user) => user.id === id);
+// PATCH request to partially update a student by ID
+export const patchStudentById = (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, email } = req.body;
+  console.log(`Partially updating student with ID: ${id}\n`);
+  res.setHeader("Content-Type", "application/json");
+  const updateFields = [];
+  const updateValues = [];
+  let fieldIndex = 1;
+  if (firstName) {
+    updateFields.push(`firstname = $${fieldIndex++}`);
+    updateValues.push(firstName);
+  }
+  if (lastName) {
+    updateFields.push(`lastname = $${fieldIndex++}`);
+    updateValues.push(lastName);
+  }
+  if (email) {
+    updateFields.push(`email = $${fieldIndex++}`);
+    updateValues.push(email);
+  }
+  if (updateFields.length === 0) {
+    return res.status(400).send("No fields to update");
+  }
+  updateValues.push(id); // Add the student ID to the end of the array
+  const updateQuery = `UPDATE my_students SET ${updateFields.join(
+    ", "
+  )} WHERE student_id = $${fieldIndex}`;
+  dbConnection.query(updateQuery, updateValues, (err, result) => {
+    if (err) {
+      console.error("Error updating data:", err);
+      res.status(500).send("Error updating data");
+    } else if (result.rowCount === 0) {
+      console.log(`Student with ID: ${id} not found`);
+      res.status(404).send("Student not found");
+    } else {
+      console.log(`Student with ID: ${id} updated successfully`);
+      res.status(200).send("Student updated successfully");
+    }
+  });
+};
 
-//   if (userIndex === -1) {
-//     return res.status(404).send("User not found");
-//   }
-
-//   users.splice(userIndex, 1);
-//   res.send(`User with ID: ${id} deleted!!`);
-// };
-
-// ===
-
-// export const updateUserById = (req, res) => {
-//   const { id } = req.params;
-//   const { name, age } = req.body;
-
-//   const user = users.find((user) => user.id === id);
-//   if (!user) {
-//     return res.status(404).send("User not found");
-//   }
-
-//   // Update the user object with the new data from the request body
-//   // Object.assign(user, req.body);
-
-//   if (name) user.name = name;
-//   if (age) user.age = age;
-//   //   users = users.map((user) => (user.id === id ? { ...user, ...req.body } : user));
-
-//   res.send(`User with ID: ${id} updated!!`);
-// };
+// ==========
